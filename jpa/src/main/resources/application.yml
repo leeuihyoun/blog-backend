@@ -1,0 +1,77 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://board.crsigumumday.ap-northeast-2.rds.amazonaws.com:3306/board?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+      username: ${MYSQL_ID}
+      password: ${MYSQL_PWD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false  # spring.jpa.open-in-view 설정 명시
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect  # MySQL8Dialect 대신 MySQLDialect 사용
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            client-id: ${NAVER_ID}
+            client-secret: ${NAVER_PWD}
+            scope:
+              - email
+            client-name: Naver
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8082/login/oauth2/code/naver
+          kakao:
+            client-id: ${KAKAO_CLIENT}
+            client-secret: ${KAKAO_SECRET}
+            redirect-uri: http://localhost:8082/login/oauth2/code/kakao
+            client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다. (최근 버전에는 작성 방법이 이렇게 바뀌었다.)
+            authorization-grant-type: authorization_code
+            scope: # kakao 개인 정보 동의 항목 설정의 ID 값
+              - account_email
+            client-name: kakao
+        provider:
+          naver:
+            authorization-uri: https://nid.naver.com/oauth2.0/authorize
+            token-uri: https://nid.naver.com/oauth2.0/token
+            user-info-uri: https://openapi.naver.com/v1/nid/me
+            user-name-attribute: response
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id # 유저 정보 조회 시 반환되는 최상위 필드명으로 해야 한다.
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_ID}
+    password: ${GMAIL_PWD}
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          timeout: 50000
+          starttls:
+            enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
+jwt:
+  secret: abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg
+  refresh-token-validity-in-seconds: 1209600 # 14일
+  access-token-validity-in-seconds: 43200 # 12시간
+logging:
+  level:
+    org.springframework.security: DEBUG
